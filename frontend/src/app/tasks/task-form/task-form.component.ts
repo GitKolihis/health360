@@ -49,7 +49,7 @@ export class TaskFormComponent {
         },
         error: (err) => {
           this.errorMessage.set('Failed to create task. Please try again.');
-          console.error('Task creation error:', err);
+          // console.error('Task creation error:', err);
         }
       });
   }
