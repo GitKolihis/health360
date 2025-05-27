@@ -1,0 +1,86 @@
+<div class="container mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-4">Task Manager</h1>
+
+  @if (errorMessage()) {
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="mb-4">
+    <label for="statusFilter" class="mr-2">Filter by status:</label>
+    <select
+      id="statusFilter"
+      [ngModel]="selectedStatus()"
+      (ngModelChange)="onStatusFilterChange($event)"
+      class="border rounded p-2"
+    >
+      @for (status of statusOptions; track status) {
+        <option [value]="status">
+          {{ status }}
+        </option>
+      }
+    </select>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center my-8">
+      <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+  } @else {
+    <div class="grid gap-4">
+      @for (task of filteredTasks(); track task.id) {
+        <div class="border rounded p-4 shadow-sm">
+          <h2 class="text-xl font-semibold">{{ task.title }}</h2>
+          @if (task.description) {
+            <p class="text-gray-600 mt-1">
+              {{ task.description }}
+            </p>
+          }
+          <div class="flex items-center justify-between mt-2">
+            <div>
+              <span class="text-sm text-gray-500">
+                Created: {{ task.createdAt | date: 'medium' }}
+              </span>
+              @if (task.updatedAt) {
+                <span class="text-sm text-gray-500 ml-2">
+                  Updated: {{ task.updatedAt | date: 'medium' }}
+                </span>
+              }
+            </div>
+            <div class="flex items-center gap-2">
+              <select
+                [ngModel]="task.status"
+                (ngModelChange)="onStatusChange(task.id, $event)"
+                class="border rounded p-1"
+              >
+                @for (status of statusOptions; track status) {
+                  @if (status !== 'ALL') {
+                    <option [value]="status">
+                      {{ status }}
+                    </option>
+                  }
+                }
+              </select>
+              <button
+                (click)="onDelete(task.id)"
+                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="text-center py-8 text-gray-500">
+          No tasks found
+        </div>
+      }
+    </div>
+  }
+
+  <app-task-form (taskCreated)="loadTasks()"></app-task-form>
+</div>
