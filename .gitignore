@@ -1,0 +1,13 @@
+# General
+.DS_Store
+*.log
+node_modules/
+dist/
+
+# Backend
+backend/.env
+backend/dist/
+
+# Frontend
+frontend/dist/
+frontend/.angular/cache
