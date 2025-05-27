@@ -1,0 +1,167 @@
+<div class="min-h-screen bg-gray-50 p-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Health360 Header Section -->
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-2">
+        Health360 Task Manager
+      </h1>
+      <p class="text-gray-600">Built by Adelani Olanrewaju Israel</p>
+    </header>
+
+    <!-- Health360 Error Message -->
+    @if (errorMessage()) {
+    <div
+      class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r"
+    >
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    </div>
+    }
+
+    <!-- Health360 Filter Section -->
+    <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+      <div class="flex-col sm:flex-row sm:items-center gap-4">
+        <div class="w-full sm:w-auto flex items-end mb-8">
+          <!-- Import the Form to add task -->
+          <app-task-form (taskCreated)="loadTasks()"></app-task-form>
+        </div>
+        <div class="w-full sm:w-auto">
+          <label
+            for="statusFilter"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Filter by status</label
+          >
+          <select
+            id="statusFilter"
+            [ngModel]="selectedStatus()"
+            (ngModelChange)="onStatusFilterChange($event)"
+            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-2 px-3 border text-sm"
+          >
+            @for (status of statusOptions; track status) {
+            <option [value]="status" class="text-sm">
+              {{ status }}
+            </option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Health360 Loading State -->
+    @if (isLoading()) {
+    <div class="flex justify-center items-center py-12">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+      ></div>
+    </div>
+    } @else {
+    <!-- Health360 Task Grid -->
+    @if (filteredTasks().length > 0) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      @for (task of filteredTasks(); track task.id) {
+      <div
+        class="bg-white rounded-lg shadow-xs hover:shadow-md transition-shadow duration-200 overflow-hidden h-full flex flex-col"
+      >
+        <div class="p-5 flex-grow">
+          <div class="flex justify-between items-start">
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-semibold text-gray-900 truncate">
+                {{ task.title }}
+              </h3>
+              @if (task.description) {
+              <p class="mt-1 text-gray-600 whitespace-pre-line line-clamp-3">
+                {{ task.description }}
+              </p>
+              }
+            </div>
+            <div class="ml-4 flex-shrink-0 flex">
+              <select
+                [ngModel]="task.status"
+                (ngModelChange)="onStatusChange(task.id, $event)"
+                class="block rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-1 px-2 border text-sm"
+              >
+                @for (status of statusOptions; track status) { @if (status !==
+                'ALL') {
+                <option [value]="status" class="text-sm">
+                  {{ status }}
+                </option>
+                } }
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+              <span class="flex items-center">
+                <svg
+                  class="h-4 w-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                {{ task.createdAt | date : "mediumDate" }}
+              </span>
+              @if (task.updatedAt) {
+              <span class="flex items-center">
+                <svg
+                  class="h-4 w-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                {{ task.updatedAt | date : "mediumDate" }}
+              </span>
+              }
+            </div>
+            <button
+              (click)="onDelete(task.id)"
+              class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+    } @else {
+    <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+      <svg
+        class="mx-auto h-12 w-12 text-gray-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1"
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+        ></path>
+      </svg>
+      <h3 class="mt-2 text-lg font-medium text-gray-900">
+        No Health360 tasks found
+      </h3>
+      <p class="mt-1 text-gray-500">Please add a new Health360 task</p>
+    </div>
+    } }
+  </div>
+</div>
